@@ -53,8 +53,8 @@ async function getPeopleInfoAndName() {
     return completeData;
 }
 //getPeopleInfoAndName()
-async function getWeather(){
-    
+async function getWeather() {
+
 }
 const peopleTable = document.querySelector('.peopleTable')
 async function createTable() {
@@ -160,8 +160,11 @@ createTable().then(() => {
                     currentTrData[i].childNodes[1].style.display = "none"
                     currentTrData[i].childNodes[3].style.display = "block"
                 }
+                
             }
-
+            for (let i = rowIndex * 7; i < (rowIndex * 7 + 7); i++) {//checks input fields in row
+                editInputs[i].value = tableText[i].textContent
+            }
             //e.currentTarget.parentNode.parentNode.remove();
             // let idNum = e.currentTarget.getAttribute('personId')
         })
@@ -178,6 +181,7 @@ createTable().then(() => {
                     let dataType = editInputs[i].getAttribute('dataType')
                     dataArr[rowIndex][dataType] = editInputs[i].value
                 }
+                
             }
             localStorage.setItem('peopleInfo', JSON.stringify(dataArr))
         })
