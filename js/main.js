@@ -1,43 +1,24 @@
-const endpoint = 'https://appleseed-wa.herokuapp.com/api/users/'
+const endpoint = 'https://appleseed-wa.herokuapp.com/api/users/';
+const weatherApi = 'https://api.openweathermap.org/data/2.5/weather?q=';
+const weatherKey = ',IL&APPID=1de7192c513e4ffcd37cb83c0b66a291';
+const proxy = 'https://api.codetabs.com/v1/proxy/?quest=';
 
-// class person {
-//     constructor(id, firstName, lastName, capsule, age, city, gender, hobby) {
-//         this.id = id;
-//         this.firstName = firstName;
-//         this.lastName = lastName;
-//         this.capsule = capsule;
-//         this.age = age;
-//         this.city = city;
-//         this.gender = gender;
-//         this.hobby = hobby;
-//     }
-// }
+const peopleTable = document.querySelector('.peopleTable')
+
 let completeData = [];
-
-// let peopleInfo = {
-//     id: '',
-//     firstName: '',
-//     lastName: '',
-//     capsule: 0,
-//     age: 0,
-//     city: '',
-//     gender: '',
-//     hobby: ''
-// }
+let weatherArr = [];
 async function getAllPeople() {
     let callApi = await fetch(endpoint);
     let data = await callApi.json();
-    //console.log(data)
     return data;
 }
-//getAllPeople()
+
 async function getPersonInfo(id) {
     let callApi = await fetch(endpoint + id);
     let data = await callApi.json();
-    //console.log(data)
     return data;
 }
-//getPersonInfo(16)
+
 async function getPeopleInfoAndName() {
     let names = await getAllPeople();
 
@@ -49,32 +30,104 @@ async function getPeopleInfoAndName() {
         });
     }
     localStorage.setItem("peopleInfo", JSON.stringify(completeData))
-    //console.log(completeData)
     return completeData;
 }
-//getPeopleInfoAndName()
-async function getWeather() {
 
+async function getWeather(city) {
+    let callApi = await fetch(proxy + weatherApi + city + weatherKey);
+    let data = await callApi.json();
+    if (data.main) {
+        let celsius = parseInt(data.main.temp) - 273.15;
+        return celsius.toFixed(2);
+    }
+    return "undefined"
 }
-const peopleTable = document.querySelector('.peopleTable')
-async function checkLoacalStorage() {
-    //let dataArr = '';
+
+
+async function createTable() {
+    let dataArr = '';
     if (localStorage.getItem("peopleInfo") == null) {
-        completeData = await getPeopleInfoAndName();
+        dataArr = await getPeopleInfoAndName();
     }
     else {
-        completeData = JSON.parse(localStorage.getItem("peopleInfo"));
+        dataArr = JSON.parse(localStorage.getItem("peopleInfo"));
     }
-}
-async function createTable(dataArr) {
-    // let dataArr = '';
-    // if (localStorage.getItem("peopleInfo") == null) {
-    //     dataArr = await getPeopleInfoAndName();
-    // }
-    // else {
-    //     dataArr = JSON.parse(localStorage.getItem("peopleInfo"));
-    // }
-   makeTableHtml(dataArr)
+    let html = `
+    <thead>
+        <tr>
+            <th>id</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Capsule</th>
+            <th>Age</th>
+            <th>City</th>
+            <th>Gender</th>
+            <th>Hobby</th>
+            <th colspan="2">Utililities</th>
+        </tr>
+    </thead>
+    <tbody>
+    `;
+
+    console.log(dataArr)
+    for (let i = 0; i < dataArr.length; i++) {
+        if (localStorage.getItem("peopleInfo") == null) {
+            weatherData = await getWeather(dataArr[i].city)
+            if (weatherData == 'undefined')
+                weatherArr.push({ name: dataArr[i].city, temp: 'undefined' });
+            else
+                weatherArr.push({ name: dataArr[i].city, temp: weatherData });
+        }
+        else
+            weatherArr = JSON.parse(localStorage.getItem("weatherInfo"))
+
+        html +=
+            `
+        <tr rowIndex="${i}">
+        <td>${dataArr[i].id}</td>
+        <td class="tableData">
+        <span class="tableText">${dataArr[i].firstName}</span>
+        <input class="editInput" dataType="firstName" type="text">
+        </td>
+        <td class="tableData">
+        <span class="tableText">${dataArr[i].lastName}</span>
+        <input class="editInput" dataType="lastName" type="text">
+        </td>
+        <td class="tableData">
+        <span class="tableText">${dataArr[i].capsule}</span>
+        <input class="editInput" dataType="capsule" type="text">
+        </td>
+        <td class="tableData">
+        <span class="tableText">${dataArr[i].age}</span>
+        <input class="editInput" dataType="age" type="text">
+        </td>
+        <td class="tableData weatherContainer">
+        <span class="tableText weatherCity">${dataArr[i].city}</span>
+        <input class="editInput" dataType="city" type="text">
+        <span class="weather">${weatherArr[i].temp}</span>
+        </td>
+        <td class="tableData">
+        <span class="tableText">${dataArr[i].gender}</span>
+        <input class="editInput" dataType="gender" type="text">
+        </td>
+        <td class="tableData">
+        <span class="tableText">${dataArr[i].hobby}</span>
+        <input class="editInput" dataType="hobby" type="text">
+        </td>
+        <td class="editAndConfirmBtn">
+        <button class="editRow" personId="${dataArr[i].id}">edit</button>
+        <button class="confirm" personId="${dataArr[i].id}">confirm</button>
+        </td>
+        <td class="deleteAndCancelBtn">
+        <button class="deleteRow" personId="${dataArr[i].id}">delete</button>
+        <button class="cancel" personId="${dataArr[i].id}">cancel</button>
+        </td>
+        </tr>
+        `
+    }
+    localStorage.setItem('weatherInfo', JSON.stringify(weatherArr))
+    html += '</tbody>'
+    peopleTable.innerHTML += html
 }
 
 function deleteTableRow(id) {
@@ -92,15 +145,15 @@ function hideAndShowInputFields(currentTrData, rowIndex) {
     confirmBtn[rowIndex].style.display = "none";
     cancelBtn[rowIndex].style.display = "none";
     for (let i = 0; i < currentTrData.length; i++) {
-        //editInputs[i].style.display = "block"
-        if (currentTrData[i].className == 'tableData') {
-            //console.log(currentTrData[i].childNodes[3]);
+        if (currentTrData[i].className == 'tableData' || (currentTrData[i].classList != null && currentTrData[i].classList.contains('weatherContainer'))) {
             currentTrData[i].childNodes[1].style.display = "block"
             currentTrData[i].childNodes[3].style.display = "none"
+            if (currentTrData[i].childNodes.length > 5)
+                currentTrData[i].childNodes[5].style.display = "block"
         }
     }
 }
-checkLoacalStorage().then(createTable(completeData).then(() => {
+createTable().then(() => {
     const editRow = document.querySelectorAll('.editRow')
     const editInputs = document.querySelectorAll('.editInput')
     const confirmBtn = document.querySelectorAll('.confirm')
@@ -112,25 +165,27 @@ checkLoacalStorage().then(createTable(completeData).then(() => {
             let currentTrData = e.currentTarget.parentNode.parentNode.childNodes;
             confirmBtn[rowIndex].style.display = "block";
             cancelBtn[rowIndex].style.display = "block";
-            let temp = '';//temp for input storage
             console.log(e.currentTarget.parentNode.parentNode.childNodes)
             console.log("row index: ", rowIndex)
             console.log(editRow[rowIndex])
-            for (let i = 0; i < currentTrData.length; i++) {
-                //editInputs[i].style.display = "block"
-                if (currentTrData[i].className == 'tableData') {
-                    //console.log(currentTrData[i].childNodes[3]);
+            for (let i = 0; i < currentTrData.length; i++) {//make input appear and text disappear
+                if (currentTrData[i].className == 'tableData' || (currentTrData[i].classList != null && currentTrData[i].classList.contains('weatherContainer'))) {
+                    console.log(currentTrData[i].classList);
                     currentTrData[i].childNodes[1].style.display = "none"
                     currentTrData[i].childNodes[3].style.display = "block"
+                    if (currentTrData[i].childNodes.length > 5)
+                        currentTrData[i].childNodes[5].style.display = "none"
                 }
-
+                if (currentTrData[i].classList != null && currentTrData[i].classList.contains('weatherContainer')) {
+                    console.log(currentTrData[i].childNodes[5])
+                }
             }
             for (let i = rowIndex * 7; i < (rowIndex * 7 + 7); i++) {//checks input fields in row
                 editInputs[i].value = tableText[i].textContent
             }
-            //e.currentTarget.parentNode.parentNode.remove();
-            // let idNum = e.currentTarget.getAttribute('personId')
+
         })
+        addSearchListeners()
     })
     confirmBtn.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -169,7 +224,10 @@ checkLoacalStorage().then(createTable(completeData).then(() => {
             deleteTableRow(idNum)
         })
     })
-}).then(() => {
+    addSearchListeners()
+    addSortListener()
+})
+function addSearchListeners() {
     let selectedType = 'firstName';
     const searchInput = document.querySelector('.searchInput');
     const selectFilter = document.querySelector('.selectFilter');
@@ -178,15 +236,13 @@ checkLoacalStorage().then(createTable(completeData).then(() => {
         console.log(selectedType)
     })
     searchInput.addEventListener('keyup', (e) => {
-        //let arr = JSON.parse(localStorage.getItem("peopleInfo"))
+        let arr = JSON.parse(localStorage.getItem("peopleInfo"))
         let value = e.currentTarget.value
-        let dataArr = searchTable(completeData, value, selectedType)
+        let dataArr = searchTable(arr, value, selectedType)
         buildFilteredTable(dataArr)
     })
-})
-
-)
-
+}
+//filter table by type
 function searchTable(dataArr, value, type) {
     let filteredArr = [];
     for (let i = 0; i < dataArr.length; i++) {
@@ -207,24 +263,21 @@ function searchTable(dataArr, value, type) {
     return filteredArr;
 }
 function buildFilteredTable(dataArr) {
-    makeTableHtml(dataArr)
-}
-
-function makeTableHtml(dataArr) {
     let html = `
     <thead>
         <tr>
-            <td>id</td>
-            <td>First Name</td>
-            <td>Last Name</td>
-            <td>Capsule</td>
-            <td>Age</td>
-            <td>City</td>
-            <td>Gender</td>
-            <td>Hobby</td>
-            <td colspan="2">Utililities</td>
+        <th>id</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Capsule</th>
+        <th>Age</th>
+        <th>City</th>
+        <th>Gender</th>
+        <th>Hobby</th>
+        <th colspan="2">Utililities</th>
         </tr>
     </thead>
+    <tbody>
     `;
     peopleTable.innerHTML = '';
     for (let i = 0; i < dataArr.length; i++) {
@@ -248,9 +301,10 @@ function makeTableHtml(dataArr) {
         <span class="tableText">${dataArr[i].age}</span>
         <input class="editInput" dataType="age" type="text">
         </td>
-        <td class="tableData">
-        <span class="tableText">${dataArr[i].city}</span>
+        <td class="tableData weatherContainer">
+        <span class="tableText weatherCity">${dataArr[i].city}</span>
         <input class="editInput" dataType="city" type="text">
+        <span class="weather">${weatherArr[i].temp}</span>
         </td>
         <td class="tableData">
         <span class="tableText">${dataArr[i].gender}</span>
@@ -271,44 +325,41 @@ function makeTableHtml(dataArr) {
         </tr>
         `
     }
+    html += '</tbody>'
     peopleTable.innerHTML += html
+    addSortListener()
 }
-// (function(document) {
-//     'use strict';
+function sortTableByColumn(table, column, asc = true) {
+    const dirModifier = asc ? 1 : -1;//asc == 1 else desc == -1
+    const tBody = table.tBodies[0];
+    const rows = Array.from(tBody.querySelectorAll('tr'));
 
-//     var LightTableFilter = (function(Arr) {
+    const sortedRows = rows.sort((a, b) => {
+        const aColText = a.querySelector(`td:nth-child(${column + 1})`).textContent.trim().toLowerCase()
+        const bColText = b.querySelector(`td:nth-child(${column + 1})`).textContent.trim().toLowerCase()
+        return aColText > bColText ? (1 * dirModifier) : (-1 * dirModifier)
+    })
+    //remove rows
+    while (tBody.firstChild) {
+        tBody.removeChild(tBody.firstChild)
+    }
+    //re-add new rows
+    tBody.append(...sortedRows);
+    //remember how the column is currently sorted
+    table.querySelectorAll('th').forEach(th => th.classList.remove('th-sort=asc', 'th-sort-desc'));
+    table.querySelector(`th:nth-child(${column + 1})`).classList.toggle('th-sort-asc', asc)
+    table.querySelector(`th:nth-child(${column + 1})`).classList.toggle('th-sort-desc', !asc)
+}
+function addSortListener() {
+    document.querySelectorAll('.tableSortable th').forEach(th => {
+        th.addEventListener('click', () => {
+            const tableElement = th.parentElement.parentElement.parentElement;
+            const headerIndex = Array.prototype.indexOf.call(th.parentElement.children, th)
+            const currentIsAscending = th.classList.contains('th-sort-asc')
 
-//       var _input;
+            sortTableByColumn(tableElement, headerIndex, !currentIsAscending)
+        })
+    })
+}
 
-//       function _onInputEvent(e) {
-//         _input = e.target;
-//         var tables = document.getElementsByClassName(_input.getAttribute('data-table'));
-//         Arr.forEach.call(tables, function(table) {
-//           Arr.forEach.call(table.tBodies, function(tbody) {
-//             Arr.forEach.call(tbody.rows, _filter);
-//           });
-//         });
-//       }
 
-//       function _filter(row) {
-//         var text = row.textContent.toLowerCase(), val = _input.value.toLowerCase();
-//         row.style.display = text.indexOf(val) === -1 ? 'none' : 'table-row';
-//       }
-
-//       return {
-//         init: function() {
-//           var inputs = document.getElementsByClassName('light-table-filter');
-//           Arr.forEach.call(inputs, function(input) {
-//             input.oninput = _onInputEvent;
-//           });
-//         }
-//       };
-//     })(Array.prototype);
-
-//     document.addEventListener('readystatechange', function() {
-//       if (document.readyState === 'complete') {
-//         LightTableFilter.init();
-//       }
-//     });
-
-//   })(document);
