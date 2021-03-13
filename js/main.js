@@ -69,7 +69,6 @@ async function createTable() {
     <tbody>
     `;
 
-    console.log(dataArr)
     for (let i = 0; i < dataArr.length; i++) {
         if (localStorage.getItem("peopleInfo") == null) {
             weatherData = await getWeather(dataArr[i].city)
@@ -165,20 +164,15 @@ createTable().then(() => {
             let currentTrData = e.currentTarget.parentNode.parentNode.childNodes;
             confirmBtn[rowIndex].style.display = "block";
             cancelBtn[rowIndex].style.display = "block";
-            console.log(e.currentTarget.parentNode.parentNode.childNodes)
-            console.log("row index: ", rowIndex)
-            console.log(editRow[rowIndex])
+
             for (let i = 0; i < currentTrData.length; i++) {//make input appear and text disappear
                 if (currentTrData[i].className == 'tableData' || (currentTrData[i].classList != null && currentTrData[i].classList.contains('weatherContainer'))) {
-                    console.log(currentTrData[i].classList);
                     currentTrData[i].childNodes[1].style.display = "none"
                     currentTrData[i].childNodes[3].style.display = "block"
                     if (currentTrData[i].childNodes.length > 5)
                         currentTrData[i].childNodes[5].style.display = "none"
                 }
-                if (currentTrData[i].classList != null && currentTrData[i].classList.contains('weatherContainer')) {
-                    console.log(currentTrData[i].childNodes[5])
-                }
+
             }
             for (let i = rowIndex * 7; i < (rowIndex * 7 + 7); i++) {//checks input fields in row
                 editInputs[i].value = tableText[i].textContent
@@ -218,7 +212,6 @@ createTable().then(() => {
     const del = document.querySelectorAll('.deleteRow')
     del.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            console.log(e.currentTarget.parentNode.parentNode)
             e.currentTarget.parentNode.parentNode.remove();
             let idNum = e.currentTarget.getAttribute('personId')
             deleteTableRow(idNum)
@@ -233,7 +226,6 @@ function addSearchListeners() {
     const selectFilter = document.querySelector('.selectFilter');
     selectFilter.addEventListener('change', (e) => {
         selectedType = e.currentTarget.value
-        console.log(selectedType)
     })
     searchInput.addEventListener('keyup', (e) => {
         let arr = JSON.parse(localStorage.getItem("peopleInfo"))
