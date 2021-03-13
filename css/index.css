@@ -7,8 +7,7 @@ body{
     background: rgba( 71, 147, 227, 1);
 }
 table {
-    /* width: 700px; */
-    /* height: 500px; */
+    border-collapse: collapse;
     text-align: center;
     font-size: 2rem;
     margin: 0 auto;
@@ -18,7 +17,9 @@ td {
     font-size: 1.5rem;
     padding: 5px;
 }
-
+td,th{
+    border-right: 1px solid #2C3845;
+}
 .tableData {
     width: 150px;
 }
@@ -32,7 +33,7 @@ tr:nth-child(odd) {
 }
 
 .deleteRow {
-    background-color: red;
+    background-color: rgba(214, 26, 26, 0.863);
 }
 
 .editRow {
@@ -141,5 +142,5 @@ th {
 }
 .peopleTable thead th:nth-child(odd) {
     color: #ffffff;
-    background: #324960;
+    background: #2C3845;
 }
