@@ -38,11 +38,12 @@ async function getWeather(city) {
     let data = await callApi.json();
     if (data.main) {
         let celsius = parseInt(data.main.temp) - 273.15;
+        console.log(data)
         return celsius.toFixed(2);
     }
     return "undefined"
 }
-
+getWeather('netanya')
 
 async function createTable() {
     let dataArr = '';
@@ -70,7 +71,7 @@ async function createTable() {
     `;
 
     for (let i = 0; i < dataArr.length; i++) {
-        if (localStorage.getItem("peopleInfo") == null) {
+        if (localStorage.getItem("weatherInfo") == null) {
             weatherData = await getWeather(dataArr[i].city)
             if (weatherData == 'undefined')
                 weatherArr.push({ name: dataArr[i].city, temp: 'undefined' });
