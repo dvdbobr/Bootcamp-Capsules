@@ -5,11 +5,12 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/normalize.css">
     <title>Capsules</title>
     <style>
         table {
-            //width: 700px;
-            height: 500px;
+            /* width: 700px; */
+            /* height: 500px; */
             text-align: center;
             font-size: 2rem;
             margin: 0 auto;
@@ -18,12 +19,14 @@
 
         td {
             font-size: 1.5rem;
-            padding: 10px;
-            
+            padding: 5px;
+
         }
-        .tableData{
+
+        .tableData {
             width: 150px;
         }
+
         tr:nth-child(even) {
             background: #CCC
         }
@@ -72,25 +75,64 @@
         .cancel {
             background-color: #ff7878;
         }
+
+        td button {
+            padding: 4px
+        }
+
+        .editAndConfirmBtn {
+            width: 100px;
+        }
+
+        thead tr td:last-child {
+            width: 200px;
+        }
+
+        .searchInput {
+            margin: 2rem 0;
+
+        }
+
+        .container {
+            width: 1300px;
+            margin: 0 auto;
+        }
+
+        label {
+            font-size: 2rem;
+        }
     </style>
 </head>
 
 <body>
-    <table class="peopleTable">
-        <thead>
-            <tr>
-                <td>id</td>
-                <td>First Name</td>
-                <td>Last Name</td>
-                <td>Capsule</td>
-                <td>Age</td>
-                <td>City</td>
-                <td>Gender</td>
-                <td>Hobby</td>
-            </tr>
-
-        </thead>
-    </table>
+    <div class="container">
+        <label>search: </label>
+        <input class="searchInput" type="text">
+        <select  class="selectFilter">
+            <option value="firstName">firstName</option>
+            <option value="lastName">lastName</option>
+            <option value="capsule">capsule</option>
+            <option value="age">age</option>
+            <option value="city">city</option>
+            <option value="gender">gender</option>
+            <option value="hobby">hobby</option>
+        </select>
+        <table class="peopleTable">
+            <!-- <thead>
+                <tr>
+                    <td>id</td>
+                    <td>First Name</td>
+                    <td>Last Name</td>
+                    <td>Capsule</td>
+                    <td>Age</td>
+                    <td>City</td>
+                    <td>Gender</td>
+                    <td>Hobby</td>
+                    <td colspan="2">Utililities</td>
+                </tr>
+            </thead> -->
+        </table>
+    </div>
     <script src="/js/main.js"></script>
 </body>
 

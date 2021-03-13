@@ -58,14 +58,29 @@ async function getWeather() {
 }
 const peopleTable = document.querySelector('.peopleTable')
 async function createTable() {
-    let html = '';
-    let dataArr = ''
+    let dataArr = '';
     if (localStorage.getItem("peopleInfo") == null) {
-        dataArr = await getPeopleInfoAndName()
+        dataArr = await getPeopleInfoAndName();
     }
     else {
-        dataArr = JSON.parse(localStorage.getItem("peopleInfo"))
+        dataArr = JSON.parse(localStorage.getItem("peopleInfo"));
     }
+    let html = `
+    <thead>
+        <tr>
+            <td>id</td>
+            <td>First Name</td>
+            <td>Last Name</td>
+            <td>Capsule</td>
+            <td>Age</td>
+            <td>City</td>
+            <td>Gender</td>
+            <td>Hobby</td>
+            <td colspan="2">Utililities</td>
+        </tr>
+    </thead>
+    `;
+    
     console.log(dataArr)
     for (let i = 0; i < dataArr.length; i++) {
         html +=
@@ -160,7 +175,7 @@ createTable().then(() => {
                     currentTrData[i].childNodes[1].style.display = "none"
                     currentTrData[i].childNodes[3].style.display = "block"
                 }
-                
+
             }
             for (let i = rowIndex * 7; i < (rowIndex * 7 + 7); i++) {//checks input fields in row
                 editInputs[i].value = tableText[i].textContent
@@ -181,7 +196,7 @@ createTable().then(() => {
                     let dataType = editInputs[i].getAttribute('dataType')
                     dataArr[rowIndex][dataType] = editInputs[i].value
                 }
-                
+
             }
             localStorage.setItem('peopleInfo', JSON.stringify(dataArr))
         })
@@ -207,3 +222,201 @@ createTable().then(() => {
         })
     })
 })
+let selectedType = 'firstName';
+const searchInput = document.querySelector('.searchInput');
+const selectFilter = document.querySelector('.selectFilter');
+selectFilter.addEventListener('change', (e) => {
+    selectedType = e.currentTarget.value
+    console.log(selectedType)
+})
+searchInput.addEventListener('keyup', (e) => {
+    let arr = JSON.parse(localStorage.getItem("peopleInfo"))
+    let value = e.currentTarget.value
+    let dataArr = searchTable(arr, value, selectedType)
+    buildFilteredTable(dataArr)
+})
+function searchTable(dataArr, value, type) {
+    let filteredArr = [];
+    for (let i = 0; i < dataArr.length; i++) {
+        if (type == 'age' || type == 'capsule') {
+            let searchedData = dataArr[i][type]
+            if (searchedData == Number(value)) {
+                filteredArr.push(dataArr[i]);
+            }
+        }
+        else {
+            let searchedData = dataArr[i][type].toLowerCase();
+            value = value.toLowerCase();
+            if (searchedData.includes(value)) {
+                filteredArr.push(dataArr[i]);
+            }
+        }
+    }
+    return filteredArr;
+}
+function buildFilteredTable(dataArr) {
+    let html = `
+    <thead>
+        <tr>
+            <td>id</td>
+            <td>First Name</td>
+            <td>Last Name</td>
+            <td>Capsule</td>
+            <td>Age</td>
+            <td>City</td>
+            <td>Gender</td>
+            <td>Hobby</td>
+            <td colspan="2">Utililities</td>
+        </tr>
+    </thead>
+    `;
+    peopleTable.innerHTML = '';
+    for (let i = 0; i < dataArr.length; i++) {
+        html +=
+            `
+        <tr rowIndex="${i}">
+        <td>${dataArr[i].id}</td>
+        <td class="tableData">
+        <span class="tableText">${dataArr[i].firstName}</span>
+        <input class="editInput" dataType="firstName" type="text">
+        </td>
+        <td class="tableData">
+        <span class="tableText">${dataArr[i].lastName}</span>
+        <input class="editInput" dataType="lastName" type="text">
+        </td>
+        <td class="tableData">
+        <span class="tableText">${dataArr[i].capsule}</span>
+        <input class="editInput" dataType="capsule" type="text">
+        </td>
+        <td class="tableData">
+        <span class="tableText">${dataArr[i].age}</span>
+        <input class="editInput" dataType="age" type="text">
+        </td>
+        <td class="tableData">
+        <span class="tableText">${dataArr[i].city}</span>
+        <input class="editInput" dataType="city" type="text">
+        </td>
+        <td class="tableData">
+        <span class="tableText">${dataArr[i].gender}</span>
+        <input class="editInput" dataType="gender" type="text">
+        </td>
+        <td class="tableData">
+        <span class="tableText">${dataArr[i].hobby}</span>
+        <input class="editInput" dataType="hobby" type="text">
+        </td>
+        <td class="editAndConfirmBtn">
+        <button class="editRow" personId="${dataArr[i].id}">edit</button>
+        <button class="confirm" personId="${dataArr[i].id}">confirm</button>
+        </td>
+        <td class="deleteAndCancelBtn">
+        <button class="deleteRow" personId="${dataArr[i].id}">delete</button>
+        <button class="cancel" personId="${dataArr[i].id}">cancel</button>
+        </td>
+        </tr>
+        `
+    }
+    peopleTable.innerHTML += html
+}
+
+// function makeTableHtml(dataArr) {
+//     let html = `
+//     <thead>
+//         <tr>
+//             <td>id</td>
+//             <td>First Name</td>
+//             <td>Last Name</td>
+//             <td>Capsule</td>
+//             <td>Age</td>
+//             <td>City</td>
+//             <td>Gender</td>
+//             <td>Hobby</td>
+//             <td colspan="2">Utililities</td>
+//         </tr>
+//     </thead>
+//     `;
+//     peopleTable.innerHTML = '';
+//     for (let i = 0; i < dataArr.length; i++) {
+//         html +=
+//             `
+//         <tr rowIndex="${i}">
+//         <td>${dataArr[i].id}</td>
+//         <td class="tableData">
+//         <span class="tableText">${dataArr[i].firstName}</span>
+//         <input class="editInput" dataType="firstName" type="text">
+//         </td>
+//         <td class="tableData">
+//         <span class="tableText">${dataArr[i].lastName}</span>
+//         <input class="editInput" dataType="lastName" type="text">
+//         </td>
+//         <td class="tableData">
+//         <span class="tableText">${dataArr[i].capsule}</span>
+//         <input class="editInput" dataType="capsule" type="text">
+//         </td>
+//         <td class="tableData">
+//         <span class="tableText">${dataArr[i].age}</span>
+//         <input class="editInput" dataType="age" type="text">
+//         </td>
+//         <td class="tableData">
+//         <span class="tableText">${dataArr[i].city}</span>
+//         <input class="editInput" dataType="city" type="text">
+//         </td>
+//         <td class="tableData">
+//         <span class="tableText">${dataArr[i].gender}</span>
+//         <input class="editInput" dataType="gender" type="text">
+//         </td>
+//         <td class="tableData">
+//         <span class="tableText">${dataArr[i].hobby}</span>
+//         <input class="editInput" dataType="hobby" type="text">
+//         </td>
+//         <td class="editAndConfirmBtn">
+//         <button class="editRow" personId="${dataArr[i].id}">edit</button>
+//         <button class="confirm" personId="${dataArr[i].id}">confirm</button>
+//         </td>
+//         <td class="deleteAndCancelBtn">
+//         <button class="deleteRow" personId="${dataArr[i].id}">delete</button>
+//         <button class="cancel" personId="${dataArr[i].id}">cancel</button>
+//         </td>
+//         </tr>
+//         `
+//     }
+//     peopleTable.innerHTML += html
+// }
+// (function(document) {
+//     'use strict';
+
+//     var LightTableFilter = (function(Arr) {
+
+//       var _input;
+
+//       function _onInputEvent(e) {
+//         _input = e.target;
+//         var tables = document.getElementsByClassName(_input.getAttribute('data-table'));
+//         Arr.forEach.call(tables, function(table) {
+//           Arr.forEach.call(table.tBodies, function(tbody) {
+//             Arr.forEach.call(tbody.rows, _filter);
+//           });
+//         });
+//       }
+
+//       function _filter(row) {
+//         var text = row.textContent.toLowerCase(), val = _input.value.toLowerCase();
+//         row.style.display = text.indexOf(val) === -1 ? 'none' : 'table-row';
+//       }
+
+//       return {
+//         init: function() {
+//           var inputs = document.getElementsByClassName('light-table-filter');
+//           Arr.forEach.call(inputs, function(input) {
+//             input.oninput = _onInputEvent;
+//           });
+//         }
+//       };
+//     })(Array.prototype);
+
+//     document.addEventListener('readystatechange', function() {
+//       if (document.readyState === 'complete') {
+//         LightTableFilter.init();
+//       }
+//     });
+
+//   })(document);
