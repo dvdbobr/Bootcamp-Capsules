@@ -57,76 +57,24 @@ async function getWeather() {
 
 }
 const peopleTable = document.querySelector('.peopleTable')
-async function createTable() {
-    let dataArr = '';
+async function checkLoacalStorage() {
+    //let dataArr = '';
     if (localStorage.getItem("peopleInfo") == null) {
-        dataArr = await getPeopleInfoAndName();
+        completeData = await getPeopleInfoAndName();
     }
     else {
-        dataArr = JSON.parse(localStorage.getItem("peopleInfo"));
+        completeData = JSON.parse(localStorage.getItem("peopleInfo"));
     }
-    let html = `
-    <thead>
-        <tr>
-            <td>id</td>
-            <td>First Name</td>
-            <td>Last Name</td>
-            <td>Capsule</td>
-            <td>Age</td>
-            <td>City</td>
-            <td>Gender</td>
-            <td>Hobby</td>
-            <td colspan="2">Utililities</td>
-        </tr>
-    </thead>
-    `;
-    
-    console.log(dataArr)
-    for (let i = 0; i < dataArr.length; i++) {
-        html +=
-            `
-        <tr rowIndex="${i}">
-        <td>${dataArr[i].id}</td>
-        <td class="tableData">
-        <span class="tableText">${dataArr[i].firstName}</span>
-        <input class="editInput" dataType="firstName" type="text">
-        </td>
-        <td class="tableData">
-        <span class="tableText">${dataArr[i].lastName}</span>
-        <input class="editInput" dataType="lastName" type="text">
-        </td>
-        <td class="tableData">
-        <span class="tableText">${dataArr[i].capsule}</span>
-        <input class="editInput" dataType="capsule" type="text">
-        </td>
-        <td class="tableData">
-        <span class="tableText">${dataArr[i].age}</span>
-        <input class="editInput" dataType="age" type="text">
-        </td>
-        <td class="tableData">
-        <span class="tableText">${dataArr[i].city}</span>
-        <input class="editInput" dataType="city" type="text">
-        </td>
-        <td class="tableData">
-        <span class="tableText">${dataArr[i].gender}</span>
-        <input class="editInput" dataType="gender" type="text">
-        </td>
-        <td class="tableData">
-        <span class="tableText">${dataArr[i].hobby}</span>
-        <input class="editInput" dataType="hobby" type="text">
-        </td>
-        <td class="editAndConfirmBtn">
-        <button class="editRow" personId="${dataArr[i].id}">edit</button>
-        <button class="confirm" personId="${dataArr[i].id}">confirm</button>
-        </td>
-        <td class="deleteAndCancelBtn">
-        <button class="deleteRow" personId="${dataArr[i].id}">delete</button>
-        <button class="cancel" personId="${dataArr[i].id}">cancel</button>
-        </td>
-        </tr>
-        `
-    }
-    peopleTable.innerHTML += html
+}
+async function createTable(dataArr) {
+    // let dataArr = '';
+    // if (localStorage.getItem("peopleInfo") == null) {
+    //     dataArr = await getPeopleInfoAndName();
+    // }
+    // else {
+    //     dataArr = JSON.parse(localStorage.getItem("peopleInfo"));
+    // }
+   makeTableHtml(dataArr)
 }
 
 function deleteTableRow(id) {
@@ -152,7 +100,7 @@ function hideAndShowInputFields(currentTrData, rowIndex) {
         }
     }
 }
-createTable().then(() => {
+checkLoacalStorage().then(createTable(completeData).then(() => {
     const editRow = document.querySelectorAll('.editRow')
     const editInputs = document.querySelectorAll('.editInput')
     const confirmBtn = document.querySelectorAll('.confirm')
@@ -221,26 +169,30 @@ createTable().then(() => {
             deleteTableRow(idNum)
         })
     })
+}).then(() => {
+    let selectedType = 'firstName';
+    const searchInput = document.querySelector('.searchInput');
+    const selectFilter = document.querySelector('.selectFilter');
+    selectFilter.addEventListener('change', (e) => {
+        selectedType = e.currentTarget.value
+        console.log(selectedType)
+    })
+    searchInput.addEventListener('keyup', (e) => {
+        //let arr = JSON.parse(localStorage.getItem("peopleInfo"))
+        let value = e.currentTarget.value
+        let dataArr = searchTable(completeData, value, selectedType)
+        buildFilteredTable(dataArr)
+    })
 })
-let selectedType = 'firstName';
-const searchInput = document.querySelector('.searchInput');
-const selectFilter = document.querySelector('.selectFilter');
-selectFilter.addEventListener('change', (e) => {
-    selectedType = e.currentTarget.value
-    console.log(selectedType)
-})
-searchInput.addEventListener('keyup', (e) => {
-    let arr = JSON.parse(localStorage.getItem("peopleInfo"))
-    let value = e.currentTarget.value
-    let dataArr = searchTable(arr, value, selectedType)
-    buildFilteredTable(dataArr)
-})
+
+)
+
 function searchTable(dataArr, value, type) {
     let filteredArr = [];
     for (let i = 0; i < dataArr.length; i++) {
         if (type == 'age' || type == 'capsule') {
             let searchedData = dataArr[i][type]
-            if (searchedData == Number(value)) {
+            if (String(searchedData).indexOf(value) > -1) {
                 filteredArr.push(dataArr[i]);
             }
         }
@@ -255,6 +207,10 @@ function searchTable(dataArr, value, type) {
     return filteredArr;
 }
 function buildFilteredTable(dataArr) {
+    makeTableHtml(dataArr)
+}
+
+function makeTableHtml(dataArr) {
     let html = `
     <thead>
         <tr>
@@ -317,70 +273,6 @@ function buildFilteredTable(dataArr) {
     }
     peopleTable.innerHTML += html
 }
-
-// function makeTableHtml(dataArr) {
-//     let html = `
-//     <thead>
-//         <tr>
-//             <td>id</td>
-//             <td>First Name</td>
-//             <td>Last Name</td>
-//             <td>Capsule</td>
-//             <td>Age</td>
-//             <td>City</td>
-//             <td>Gender</td>
-//             <td>Hobby</td>
-//             <td colspan="2">Utililities</td>
-//         </tr>
-//     </thead>
-//     `;
-//     peopleTable.innerHTML = '';
-//     for (let i = 0; i < dataArr.length; i++) {
-//         html +=
-//             `
-//         <tr rowIndex="${i}">
-//         <td>${dataArr[i].id}</td>
-//         <td class="tableData">
-//         <span class="tableText">${dataArr[i].firstName}</span>
-//         <input class="editInput" dataType="firstName" type="text">
-//         </td>
-//         <td class="tableData">
-//         <span class="tableText">${dataArr[i].lastName}</span>
-//         <input class="editInput" dataType="lastName" type="text">
-//         </td>
-//         <td class="tableData">
-//         <span class="tableText">${dataArr[i].capsule}</span>
-//         <input class="editInput" dataType="capsule" type="text">
-//         </td>
-//         <td class="tableData">
-//         <span class="tableText">${dataArr[i].age}</span>
-//         <input class="editInput" dataType="age" type="text">
-//         </td>
-//         <td class="tableData">
-//         <span class="tableText">${dataArr[i].city}</span>
-//         <input class="editInput" dataType="city" type="text">
-//         </td>
-//         <td class="tableData">
-//         <span class="tableText">${dataArr[i].gender}</span>
-//         <input class="editInput" dataType="gender" type="text">
-//         </td>
-//         <td class="tableData">
-//         <span class="tableText">${dataArr[i].hobby}</span>
-//         <input class="editInput" dataType="hobby" type="text">
-//         </td>
-//         <td class="editAndConfirmBtn">
-//         <button class="editRow" personId="${dataArr[i].id}">edit</button>
-//         <button class="confirm" personId="${dataArr[i].id}">confirm</button>
-//         </td>
-//         <td class="deleteAndCancelBtn">
-//         <button class="deleteRow" personId="${dataArr[i].id}">delete</button>
-//         <button class="cancel" personId="${dataArr[i].id}">cancel</button>
-//         </td>
-//         </tr>
-//         `
-//     }
-//     peopleTable.innerHTML += html
-// }
 // (function(document) {
 //     'use strict';
 
