@@ -43,7 +43,6 @@ async function getWeather(city) {
     }
     return "undefined"
 }
-getWeather('netanya')
 
 async function createTable() {
     let dataArr = '';
